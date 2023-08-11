@@ -1,0 +1,43 @@
+version: '2'
+
+services:
+  userapi:
+    build: .
+    depends_on:
+      - rabbitmq
+      - mongodb
+    environment:
+      - 'MONGO_URI=mongodb://user_api:user-api-password!@mongodb/userApi'
+    ports:
+      - '3000:3000'
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      - 'MONGO_INITDB_ROOT_USERNAME=user_api' 
+      - 'MONGO_INITDB_ROOT_PASSWORD=user-api-password!'
+      - 'MONGO_INITDB_DATABASE=userApi'
+    volumes:
+      - 'mongodb-data:/data/db'
+    ports:
+      - '27017:27017'
+    command: mongod
+
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    container_name: rabbitmq
+    hostname: 'rabbitmq'
+    environment:
+      RABBITMQ_ERLANG_COOKIE: 'SWQOKODSQALRPCLNMEQG'
+      RABBITMQ_DEFAULT_USER: 'rabbitmq'
+      RABBITMQ_DEFAULT_PASS: 'rabbitmq'
+      RABBITMQ_DEFAULT_VHOST: '/'
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    labels:
+      NAME: 'rabbitmq'
+
+volumes:
+  mongodb-data: {}
